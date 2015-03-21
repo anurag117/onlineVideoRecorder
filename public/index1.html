@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Video Capture Example</title>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css"></link>
+
+    <style>
+    video {
+        max-width: 50%;
+        vertical-align: bottom;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    p,
+    .inner {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    label {
+        display: inline-block;
+        width: 8em;
+    }
+    </style>
+
+    <script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.26/angular.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+    <script>
+   var file= audioVideoRecorder.getBlob();
+  // Create new form data
+  var fd = new FormData();
+  // Append our Canvas image file to the form data
+  fd.append("image", file);
+  // And send it
+
+  $(document).ready(function(){
+  $("#post-vid").click(function(){
+  $.ajax({
+     url: "/users",
+     type: "POST",
+     data: fd,
+     processData: false,
+     contentType: false,
+  });
+});  
+}); 
+  </script>
+
+</head>
+
+<body>
+
+  <div class="inner" >
+     <h2 id="download-url"></h2>
+     <br />
+     <video id="video"></video>
+      <hr />
+     <button id="start-recording">Record</button>
+     <button id="stop-recording" disabled>Stop</button>
+     <button id="post-vid" disabled>Post Video</button>
+     <br />
+
+ </div>
+
+<script>
+        var videoElement = document.getElementById('video');
+        var downloadURL = document.getElementById('download-url');
+
+        var startRecording = document.getElementById('start-recording');
+        var stopRecording = document.getElementById('stop-recording');
+        var postvid = document.getElementById('post-vid');
+
+        var variable1="";
+        var variable2;
+        var var3=0;
+
+        startRecording.onclick = function() {
+            startRecording.disabled = true;
+            stopRecording.disabled = false;
+            postvid.disabled = true;
+
+
+            captureUserMedia(function(stream) {
+                window.audioVideoRecorder = window.RecordRTC(stream, {
+                    type: 'video' // don't forget this; otherwise you'll get video/webm instead of audio/ogg
+                });
+                window.audioVideoRecorder.startRecording();
+            });
+        };
+
+        stopRecording.onclick = function() {
+            stopRecording.disabled = true;
+            startRecording.disabled = false;
+            postvid.disabled = false;
+
+          window.audioVideoRecorder.stopRecording(function(url) {
+          downloadURL.innerHTML = '<a href="' + url + '" download="RecordRTC.webm" target="_blank">Save RecordRTC.webm to Disk!</a>';
+                videoElement.src = url;  variable1=url;
+                videoElement.muted = false;
+                videoElement.play();
+
+
+                videoElement.onended = function() {
+                    videoElement.pause();
+
+                    // dirty workaround for: "firefox seems unable to playback"
+                    videoElement.src = URL.createObjectURL(audioVideoRecorder.getBlob());
+                };
+            });
+        };
+
+        function captureUserMedia(callback) {
+          if(var3==1){
+            callback(variable2);
+          }
+        }
+
+
+        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+            navigator.getUserMedia({
+                audio: true,
+                video: true
+            }, function(stream) {
+                videoElement.src = URL.createObjectURL(stream);
+                videoElement.muted = true;
+                videoElement.controls = true;
+                videoElement.play();
+
+                variable2=stream;  var3=1;
+               // callback(stream);
+            }, function(error) {
+                alert(error); 
+                var3=-1;
+                stopRecording.disabled = true;
+                startRecording.disabled = true;
+                postvid.disabled = true;
+            });
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Video Capture Example</title>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+
+    <style>
+    video {
+        max-width: 100%;
+        vertical-align: bottom;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 2em;
+        margin: .2em;
+        width: 30%;
+    }
+    p,
+    .inner {
+        padding: 1em;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    label {
+        display: inline-block;
+        width: 8em;
+    }
+    </style>
+
+</head>
+<script src="//cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+
+<body>
+
+<div class="inner">
+     <h2 id="download-url"></h2>
+     <br />
+     <video id="video"></video>
+      <hr />
+     <button id="start-recording">Record Audio+Video</button>
+     <button id="stop-recording" disabled>Stop</button>
+     <button id="post-vid" disabled>Post Video</button>
+     <br />
+ </div>
+
+<script>
+        var videoElement = document.getElementById('video');
+        var downloadURL = document.getElementById('download-url');
+
+        var startRecording = document.getElementById('start-recording');
+        var stopRecording = document.getElementById('stop-recording');
+        var postvid = document.getElementById('post-vid');
+
+        startRecording.onclick = function() {
+            startRecording.disabled = true;
+            stopRecording.disabled = false;
+            postvid.disabled = true;
+
+
+            captureUserMedia(function(stream) {
+                window.audioVideoRecorder = window.RecordRTC(stream, {
+                    type: 'video' // don't forget this; otherwise you'll get video/webm instead of audio/ogg
+                });
+                window.audioVideoRecorder.startRecording();
+            });
+        };
+
+        stopRecording.onclick = function() {
+            stopRecording.disabled = true;
+            startRecording.disabled = false;
+            postvid.disabled = false;
+
+          window.audioVideoRecorder.stopRecording(function(url) {
+          downloadURL.innerHTML = '<a href="' + url + '" download="RecordRTC.webm" target="_blank">Save RecordRTC.webm to Disk!</a>';
+                videoElement.src = url;
+                videoElement.muted = false;
+                videoElement.play();
+
+                videoElement.onended = function() {
+                    videoElement.pause();
+
+                    // dirty workaround for: "firefox seems unable to playback"
+                    videoElement.src = URL.createObjectURL(audioVideoRecorder.getBlob());
+                };
+            });
+        };
+
+        function captureUserMedia(callback) {
+            navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+            navigator.getUserMedia({
+                audio: true,
+                video: true
+            }, function(stream) {
+                videoElement.src = URL.createObjectURL(stream);
+                videoElement.muted = true;
+                videoElement.controls = true;
+                videoElement.play();
+
+                callback(stream);
+            }, function(error) {
+                console.error(error);
+            });
+        }
+
+  </script>
+
+</body>
+</html>

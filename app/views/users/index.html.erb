@@ -1,0 +1,65 @@
+<html>
+<head>
+<title>Video Captures</title>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css"></link>
+
+    <style>
+    video {
+        max-width: 50%;
+        vertical-align: bottom;
+    }
+    input {
+        border: 1px solid #d9d9d9;
+        border-radius: 1px;
+        font-size: 1em;
+        margin: .2em;
+        width: 30%;
+    }
+    p,
+    .inner {
+        padding: 1em;
+    }
+    ul
+    {
+    list-style-type: none;
+    }
+    li {
+        border-bottom: 1px solid rgb(189, 189, 189);
+        border-left: 1px solid rgb(189, 189, 189);
+        padding: .5em;
+    }
+    label {
+        display: inline-block;
+        width: 8em;
+    }
+    </style>
+</head>
+
+
+<body>
+<h1>Showing All Videos</h1>
+
+<ul>
+
+<%=@users.each do |user| %>
+<li>
+<h2><%=user.title%></h2><br>
+<video src= "<%=user.video.url%>" controls height="350" onended=" { this.pause(); this.src='<%=user.video.url%>'; }" />
+</li><br><br>
+<%end%>
+</ul>
+
+<script>
+videoElement.onended = function() {
+     videoElement.pause();
+    // dirty workaround for: "firefox seems unable to playback"
+    videoElement.src = URL.createObjectURL(audioVideoRecorder.getBlob());
+  };
+
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+Audio+Video recorder using WebRTC Experiment and angularJS on frontend and Ruby on Rails on backend.
+
+uses gem 'carrierwave'
+
+records audio+ video in firefox
+
+records only video in chrome
+
+WebRTC Experiment link:
+https://github.com/muaz-khan/RecordRTC
+
+record video at "localhost:3000"
+
+view all recorded videos at "localhost:3000/users"
+
+html views in  \app\views\users
